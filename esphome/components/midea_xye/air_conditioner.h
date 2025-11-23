@@ -266,6 +266,8 @@ class AirConditioner : public PollingComponent, public climate::Climate, public 
   uint8_t CalculateSetTime(uint32_t time);
   uint32_t CalculateGetTime(uint8_t time);
   static float CalculateTemp(uint8_t byte);
+  float decode_target_temperature_(uint8_t raw) const;
+  bool c4_reports_raw_setpoint_{false};
 };
 
 }  // namespace ac

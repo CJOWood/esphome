@@ -426,19 +426,16 @@ void AirConditioner::ParseResponse(uint8_t cmdSent) {
         if (mode != ClimateMode::CLIMATE_MODE_OFF ||
             ForceReadNextCycle == 1)  // Don't update below states unless mode is an ON state
         {
-          float incoming_target_temp = 0.0;
+          float incoming_target_temp = 0.0f;
           if (this->use_fahrenheit_) {
             incoming_target_temp = (float) (((RXData[RX_C4_BYTE_SET_TEMP] - 0x87) - 32.0) * 5.0 / 9.0);
-            if (incoming_target_temp != this->target_temperature) {
-              need_publish = true;
-              update_property(this->target_temperature, incoming_target_temp, need_publish);
-            }
           } else {
-            incoming_target_temp = CalculateTemp(RXData[RX_C4_BYTE_SET_TEMP]);
-            if (incoming_target_temp != this->target_temperature) {
-              need_publish = true;
-              update_property(this->target_temperature, incoming_target_temp, need_publish);
-            }
+            // For Celsius, this unit reports setpoint as 0x40 | degrees.
+            incoming_target_temp = static_cast<float>(RXData[RX_C4_BYTE_SET_TEMP] & 0x3F);
+          }
+
+          if (incoming_target_temp != this->target_temperature) {
+            update_property(this->target_temperature, incoming_target_temp, need_publish);
           }
           if (need_publish)
             this->publish_state();
