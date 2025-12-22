@@ -590,8 +590,12 @@ void AirConditioner::do_follow_me(float temperature, bool beeper) {
   // Only send if mode is something other than off.
   // Wired controller does not send 0xC6 when off.
   if (this->mode != ClimateMode::CLIMATE_MODE_OFF) {
-    sendRecv(0xC6);
-    ESP_LOGI(Constants::TAG, "Sent Follow-Me data.");
+    if (controlState != STATE_WAIT_DATA) {
+      controlState = STATE_SEND_C6;
+    } else {
+      queuedCommand = STATE_SEND_C6;
+    }
+    ESP_LOGI(Constants::TAG, "Queued Follow-Me data.");
   }
 #endif
 }
